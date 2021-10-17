@@ -1,6 +1,7 @@
 package com.exxair.services;
 
 import com.exxair.dto.ExchangeRateResponse;
+import com.exxair.exceprions.ExchangeRateException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +18,8 @@ public class ExchangeRateService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<ExchangeRateResponse> result = restTemplate.getForEntity(NBP_USD_RATE_URL, ExchangeRateResponse.class);
 
-        //TODO
-        return Optional.ofNullable(result.getBody()).map(b -> b.getRates().get(0).getMid()).orElseThrow();
+        return Optional.ofNullable(result.getBody())
+                .map(b -> b.getRates().get(0).getMid())
+                .orElseThrow(() -> new ExchangeRateException("There is a problem retrieving current exchange rate"));
     }
 }

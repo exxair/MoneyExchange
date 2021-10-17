@@ -5,6 +5,8 @@ import com.exxair.dto.AccountExchangeRequest;
 import com.exxair.dto.AccountInfoResponse;
 import com.exxair.dto.SubAccountInfo;
 import com.exxair.enums.Currency;
+import com.exxair.exceprions.AccountExistsException;
+import com.exxair.exceprions.InsufficientFundsException;
 import com.exxair.model.Account;
 import com.exxair.repositories.AccountsRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +28,7 @@ public class AccountsService {
     @Transactional
     public void createAccount(AccountCreateRequest accountCreateRequest) {
         accountsRepository.findByPesel(accountCreateRequest.getPesel()).ifPresent(a -> {
-            //TODO ex
-            throw new RuntimeException("Account for this user already exists.");
+            throw new AccountExistsException("Account for this user already exists");
         });
 
         Account account = new Account(accountCreateRequest.getName(), accountCreateRequest.getSurname(), accountCreateRequest.getPesel(), accountCreateRequest.getInitialValue());
@@ -68,8 +69,7 @@ public class AccountsService {
 
     private void validateAmount(Map<Currency, BigDecimal> subAccounts, AccountExchangeRequest accountExchangeRequest) {
         if (subAccounts.get(accountExchangeRequest.getFromCurrency()).compareTo(accountExchangeRequest.getAmount()) < 0) {
-            //TODO
-            throw new RuntimeException();
+            throw new InsufficientFundsException("Insufficient funds to complete operation");
         }
     }
 }
